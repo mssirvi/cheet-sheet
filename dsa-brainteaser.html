@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Brainteaser Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        #teaser-container {
+            margin-top: 30px;
+            max-width: 90%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        #problem {
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #solution {
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border-top: 1px solid #dee2e6;
+            display: none;
+        }
+        #solution pre {
+            margin: 0;
+            background: none !important;
+            padding: 0 !important;
+            border: none !important;
+        }
+        #solution code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+        }
+        #reveal-btn {
+            background-color: #28a745;
+        }
+        #reveal-btn:hover {
+            background-color: #218838;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 20px;
+            }
+            button {
+                font-size: 16px;
+                padding: 10px 20px;
+            }
+            #problem, #solution {
+                font-size: 14px;
+                padding: 15px;
+            }
+            #solution code {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>DSA Brainteaser Generator</h1>
+    <button id="generate">Generate Random Teaser</button>
+    <div id="teaser-container">
+        <div id="problem"></div>
+        <div id="solution"></div>
+        <button id="reveal-btn" style="display: none;">Reveal Solution</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        hljs.highlightAll();
+
+        const teasers = [
+            {
+                problem: "Given a string s, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases. For example, 'A man, a plan, a canal: Panama' is a palindrome.",
+                solution: "Use two pointers starting from both ends, skipping non-alphanumeric characters and ignoring case. Move pointers inward if characters match.\n\n```javascript\nfunction isPalindrome(s) {\n    let left = 0, right = s.length - 1;\n    while (left < right) {\n        while (left < right && !isAlphanumeric(s[left])) left++;\n        while (left < right && !isAlphanumeric(s[right])) right--;\n        if (s[left].toLowerCase() !== s[right].toLowerCase()) return false;\n        left++;\n        right--;\n    }\n    return true;\n}\n\nfunction isAlphanumeric(char) {\n    return /^[a-zA-Z0-9]$/.test(char);\n}\n```"
+            },
+            {
+                problem: "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
+                solution: "Traverse both lists simultaneously, adding digits and handling carry. Create new nodes for the sum.\n\n```javascript\nfunction addTwoNumbers(l1, l2) {\n    let dummy = new ListNode(0);\n    let curr = dummy;\n    let carry = 0;\n    while (l1 || l2 || carry) {\n        let sum = carry;\n        if (l1) { sum += l1.val; l1 = l1.next; }\n        if (l2) { sum += l2.val; l2 = l2.next; }\n        carry = Math.floor(sum / 10);\n        curr.next = new ListNode(sum % 10);\n        curr = curr.next;\n    }\n    return dummy.next;\n}\n```"
+            },
+            {
+                problem: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice.",
+                solution: "Use a hash map to store numbers and their indices. For each number, check if (target - num) exists in the map.\n\n```javascript\nfunction twoSum(nums, target) {\n    const map = new Map();\n    for (let i = 0; i < nums.length; i++) {\n        const complement = target - nums[i];\n        if (map.has(complement)) {\n            return [map.get(complement), i];\n        }\n        map.set(nums[i], i);\n    }\n    return [];\n}\n```"
+            },
+            {
+                problem: "Reverse a singly linked list. For example, input: 1->2->3->4->5->NULL, output: 5->4->3->2->1->NULL.",
+                solution: "Use three pointers: prev, curr, next. Reverse the next pointer of curr to prev iteratively.\n\n```javascript\nfunction reverseList(head) {\n    let prev = null;\n    let curr = head;\n    while (curr) {\n        let next = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = next;\n    }\n    return prev;\n}\n```"
+            },
+            {
+                problem: "Given a binary tree, find its maximum depth. The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.",
+                solution: "Use recursion: max depth is 1 + max of left and right subtree depths.\n\n```javascript\nfunction maxDepth(root) {\n    if (!root) return 0;\n    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}\n```"
+            },
+            {
+                problem: "Implement an LRU (Least Recently Used) Cache with get and put operations in O(1) time complexity.",
+                solution: "Use a hash map and doubly linked list. Map stores keys to nodes. Move accessed nodes to head.\n\n```javascript\nclass LRUCache {\n    constructor(capacity) {\n        this.capacity = capacity;\n        this.cache = new Map();\n        this.head = { next: null, prev: null };\n        this.tail = { next: null, prev: this.head };\n        this.head.next = this.tail;\n    }\n    get(key) {\n        if (this.cache.has(key)) {\n            let node = this.cache.get(key);\n            this.moveToFront(node);\n            return node.value;\n        }\n        return -1;\n    }\n    put(key, value) {\n        if (this.cache.has(key)) {\n            let node = this.cache.get(key);\n            node.value = value;\n            this.moveToFront(node);\n        } else {\n            let node = { key, value, next: null, prev: null };\n            this.cache.set(key, node);\n            this.addToFront(node);\n            if (this.cache.size > this.capacity) {\n                let lru = this.tail.prev;\n                this.removeNode(lru);\n                this.cache.delete(lru.key);\n            }\n        }\n    }\n    addToFront(node) {\n        node.next = this.head.next;\n        node.prev = this.head;\n        this.head.next.prev = node;\n        this.head.next = node;\n    }\n    removeNode(node) {\n        node.prev.next = node.next;\n        node.next.prev = node.prev;\n    }\n    moveToFront(node) {\n        this.removeNode(node);\n        this.addToFront(node);\n    }\n}\n```"
+            },
+            {
+                problem: "Given a string s, find the length of the longest substring without repeating characters. For example, in 'abcabcbb', the answer is 3 ('abc').",
+                solution: "Use sliding window with a set to track characters in current window.\n\n```javascript\nfunction lengthOfLongestSubstring(s) {\n    const set = new Set();\n    let left = 0, maxLen = 0;\n    for (let right = 0; right < s.length; right++) {\n        while (set.has(s[right])) {\n            set.delete(s[left]);\n            left++;\n        }\n        set.add(s[right]);\n        maxLen = Math.max(maxLen, right - left + 1);\n    }\n    return maxLen;\n}\n```"
+            },
+            {
+                problem: "Merge two sorted linked lists and return it as a sorted list. The list should be made by splicing together the nodes of the first two lists.",
+                solution: "Use dummy node and compare nodes from both lists, attaching the smaller one.\n\n```javascript\nfunction mergeTwoLists(l1, l2) {\n    let dummy = new ListNode(0);\n    let curr = dummy;\n    while (l1 && l2) {\n        if (l1.val < l2.val) {\n            curr.next = l1;\n            l1 = l1.next;\n        } else {\n            curr.next = l2;\n            l2 = l2.next;\n        }\n        curr = curr.next;\n    }\n    curr.next = l1 || l2;\n    return dummy.next;\n}\n```"
+            },
+            {
+                problem: "Given the root of a binary tree, determine if it is a valid binary search tree (BST). A valid BST is defined as follows: The left subtree of a node contains only nodes with keys less than the node's key. The right subtree of a node contains only nodes with keys greater than the node's key. Both the left and right subtrees must also be binary search trees.",
+                solution: "Use inorder traversal to check if the sequence is strictly increasing, or pass min/max bounds recursively.\n\n```javascript\nfunction isValidBST(root) {\n    const inorder = [];\n    function traverse(node) {\n        if (!node) return;\n        traverse(node.left);\n        inorder.push(node.val);\n        traverse(node.right);\n    }\n    traverse(root);\n    for (let i = 1; i < inorder.length; i++) {\n        if (inorder[i] <= inorder[i-1]) return false;\n    }\n    return true;\n}\n```"
+            },
+            {
+                problem: "Find the kth largest element in an unsorted array. Note that it is the kth largest element in the sorted order, not the kth distinct element.",
+                solution: "Use min-heap (priority queue) of size k, or quickselect. In JS, use array sort for simplicity, but O(n log n).\n\n```javascript\nfunction findKthLargest(nums, k) {\n    return nums.sort((a, b) => b - a)[k - 1];\n}\n```"
+            },
+            {
+                problem: "Given an m x n grid of characters board and a string word, return true if word exists in the grid. The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.",
+                solution: "DFS from each cell matching the first letter, exploring 4 directions, marking visited.\n\n```javascript\nfunction exist(board, word) {\n    const rows = board.length, cols = board[0].length;\n    function dfs(i, j, k) {\n        if (k === word.length) return true;\n        if (i < 0 || i >= rows || j < 0 || j >= cols || board[i][j] !== word[k]) return false;\n        let temp = board[i][j];\n        board[i][j] = '#';\n        let found = dfs(i+1, j, k+1) || dfs(i-1, j, k+1) || dfs(i, j+1, k+1) || dfs(i, j-1, k+1);\n        board[i][j] = temp;\n        return found;\n    }\n    for (let i = 0; i < rows; i++) {\n        for (let j = 0; j < cols; j++) {\n            if (dfs(i, j, 0)) return true;\n        }\n    }\n    return false;\n}\n```"
+            },
+            {
+                problem: "Implement a Trie (prefix tree) with insert, search, and startsWith methods.",
+                solution: "Use nested objects or array of nodes with children map. Insert builds the tree, search traverses.\n\n```javascript\nvar Trie = function() {\n    this.root = {};\n};\nTrie.prototype.insert = function(word) {\n    let node = this.root;\n    for (let char of word) {\n        if (!node[char]) node[char] = {};\n        node = node[char];\n    }\n    node.isEnd = true;\n};\nTrie.prototype.search = function(word) {\n    let node = this.root;\n    for (let char of word) {\n        if (!node[char]) return false;\n        node = node[char];\n    }\n    return !!node.isEnd;\n};\nTrie.prototype.startsWith = function(prefix) {\n    let node = this.root;\n    for (let char of prefix) {\n        if (!node[char]) return false;\n        node = node[char];\n    }\n    return true;\n};\n```"
+            },
+            {
+                problem: "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+                solution: "Sort intervals by start time, then merge if current end >= next start.\n\n```javascript\nfunction merge(intervals) {\n    if (!intervals.length) return [];\n    intervals.sort((a, b) => a[0] - b[0]);\n    const merged = [intervals[0]];\n    for (let i = 1; i < intervals.length; i++) {\n        let curr = merged[merged.length - 1];\n        if (curr[1] >= intervals[i][0]) {\n            curr[1] = Math.max(curr[1], intervals[i][1]);\n        } else {\n            merged.push(intervals[i]);\n        }\n    }\n    return merged;\n}\n```"
+            },
+            {
+                problem: "Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. Return the answer in any order. A mapping of digits to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.",
+                solution: "Use backtracking to build combinations based on phone map.\n\n```javascript\nconst letterCombinations = (digits) => {\n    if (!digits) return [];\n    const map = {'2':'abc','3':'def','4':'ghi','5':'jkl','6':'mno','7':'pqrs','8':'tuv','9':'wxyz'};\n    const res = [];\n    const backtrack = (combo, nextDigits) => {\n        if (nextDigits.length === 0) {\n            res.push(combo);\n            return;\n        }\n        for (let letter of map[nextDigits[0]]) {\n            backtrack(combo + letter, nextDigits.slice(1));\n        }\n    };\n    backtrack('', digits);\n    return res;\n};\n```"
+            },
+            {
+                problem: "Sort an array of integers using the quicksort algorithm. Explain the partition step.",
+                solution: "Quicksort: Choose pivot, partition array so elements < pivot left, > right, recurse.\nPartition: Use two pointers, swap elements around pivot.\n\n```javascript\nfunction quicksort(arr) {\n    if (arr.length <= 1) return arr;\n    let pivot = arr[arr.length - 1];\n    let left = [], right = [];\n    for (let i = 0; i < arr.length - 1; i++) {\n        if (arr[i] < pivot) left.push(arr[i]);\n        else right.push(arr[i]);\n    }\n    return [...quicksort(left), pivot, ...quicksort(right)];\n}\n```"
+            },
+            {
+                problem: "Given the head of a sorted linked list, delete all duplicates such that each element appears only once. Return the linked list sorted as well.",
+                solution: "Traverse and skip duplicates by setting next to next.next if equal.\n\n```javascript\nfunction deleteDuplicates(head) {\n    let curr = head;\n    while (curr && curr.next) {\n        if (curr.val === curr.next.val) {\n            curr.next = curr.next.next;\n        } else {\n            curr = curr.next;\n        }\n    }\n    return head;\n}\n```"
+            },
+            {
+                problem: "Implement a function to find the first missing positive integer in an unsorted array of integers. It should run in O(n) time and use constant extra space.",
+                solution: "Use the array itself as hash: for positive nums <= n, place at index num-1. Then find first index where arr[i] != i+1.\n\n```javascript\nfunction firstMissingPositive(nums) {\n    let n = nums.length;\n    for (let i = 0; i < n; i++) {\n        while (nums[i] > 0 && nums[i] <= n && nums[nums[i] - 1] !== nums[i]) {\n            [nums[nums[i] - 1], nums[i]] = [nums[i], nums[nums[i] - 1]];\n        }\n    }\n    for (let i = 0; i < n; i++) {\n        if (nums[i] !== i + 1) return i + 1;\n    }\n    return n + 1;\n}\n```"
+            },
+            {
+                problem: "Given a binary tree, return the inorder traversal of its nodes' values.",
+                solution: "Recursive: traverse left, visit, traverse right. Or iterative with stack.\n\n```javascript\nfunction inorderTraversal(root) {\n    const res = [];\n    const stack = [];\n    let curr = root;\n    while (curr || stack.length) {\n        while (curr) {\n            stack.push(curr);\n            curr = curr.left;\n        }\n        curr = stack.pop();\n        res.push(curr.val);\n        curr = curr.right;\n    }\n    return res;\n}\n```"
+            },
+            {
+                problem: "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.",
+                solution: "Use two stacks: main and min-stack that keeps current min.\n\n```javascript\nclass MinStack {\n    constructor() {\n        this.stack = [];\n        this.minStack = [];\n    }\n    push(val) {\n        this.stack.push(val);\n        if (this.minStack.length === 0 || val <= this.minStack[this.minStack.length - 1]) {\n            this.minStack.push(val);\n        }\n    }\n    pop() {\n        if (this.stack.pop() === this.minStack[this.minStack.length - 1]) {\n            this.minStack.pop();\n        }\n    }\n    top() {\n        return this.stack[this.stack.length - 1];\n    }\n    getMin() {\n        return this.minStack[this.minStack.length - 1];\n    }\n}\n```"
+            },
+            {
+                problem: "Given an integer array nums, find a contiguous non-empty subarray within the array that has the largest sum, and return the sum.",
+                solution: "Kadane's algorithm: Track current sum, reset if negative, update max.\n\n```javascript\nfunction maxSubArray(nums) {\n    let maxSum = nums[0];\n    let currSum = nums[0];\n    for (let i = 1; i < nums.length; i++) {\n        currSum = Math.max(nums[i], currSum + nums[i]);\n        maxSum = Math.max(maxSum, currSum);\n    }\n    return maxSum;\n}\n```"
+            }
+        ];
+
+        const generateBtn = document.getElementById('generate');
+        const problemDiv = document.getElementById('problem');
+        const solutionDiv = document.getElementById('solution');
+        const revealBtn = document.getElementById('reveal-btn');
+        const teaserContainer = document.getElementById('teaser-container');
+
+        function renderSolution(solutionText) {
+            const parts = solutionText.split('```javascript\n');
+            if (parts.length > 1) {
+                const [text, code] = parts;
+                const codeBlock = code.split('```')[0];
+                return `${text}<pre><code class="language-javascript">${codeBlock}</code></pre>`;
+            }
+            return solutionText;
+        }
+
+        generateBtn.addEventListener('click', () => {
+            const randomIndex = Math.floor(Math.random() * teasers.length);
+            const teaser = teasers[randomIndex];
+            problemDiv.textContent = teaser.problem;
+            solutionDiv.innerHTML = renderSolution(teaser.solution);
+            solutionDiv.style.display = 'none';
+            revealBtn.style.display = 'block';
+            teaserContainer.style.display = 'block';
+            revealBtn.textContent = 'Reveal Solution';
+            hljs.highlightAll();
+        });
+
+        revealBtn.addEventListener('click', () => {
+            if (solutionDiv.style.display === 'none') {
+                solutionDiv.style.display = 'block';
+                revealBtn.textContent = 'Hide Solution';
+            } else {
+                solutionDiv.style.display = 'none';
+                revealBtn.textContent = 'Reveal Solution';
+            }
+        });
+    </script>
+</body>
+</html>
