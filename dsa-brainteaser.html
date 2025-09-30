@@ -15,8 +15,8 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color:#080000;
+            color:  #f4f4f4;
             text-align: center;
             box-sizing: border-box;
         }
@@ -45,7 +45,7 @@
         #teaser-container {
             margin-top: 30px;
             max-width: 90%;
-            background-color: white;
+            background-color: rgb(18, 1, 1);
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
@@ -105,8 +105,11 @@
     </style>
 </head>
 <body>
+    <a href="index.html" style="color: #f4f4f4">
+        <h1>Back</h1>
+      </a>
     <h1>DSA Brainteaser Generator</h1>
-    <button id="generate">Generate Random Teaser</button>
+    <button id="generate" disabled>Loading...</button>
     <div id="teaser-container">
         <div id="problem"></div>
         <div id="solution"></div>
@@ -117,7 +120,8 @@
     <script>
         hljs.highlightAll();
 
-        const teasers = [
+        // Fallback static teasers array
+        const staticTeasers = [
             {
                 problem: "Given a string s, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases. For example, 'A man, a plan, a canal: Panama' is a palindrome.",
                 solution: "Use two pointers starting from both ends, skipping non-alphanumeric characters and ignoring case. Move pointers inward if characters match.\n\n```javascript\nfunction isPalindrome(s) {\n    let left = 0, right = s.length - 1;\n    while (left < right) {\n        while (left < right && !isAlphanumeric(s[left])) left++;\n        while (left < right && !isAlphanumeric(s[right])) right--;\n        if (s[left].toLowerCase() !== s[right].toLowerCase()) return false;\n        left++;\n        right--;\n    }\n    return true;\n}\n\nfunction isAlphanumeric(char) {\n    return /^[a-zA-Z0-9]$/.test(char);\n}\n```"
@@ -152,11 +156,11 @@
             },
             {
                 problem: "Given the root of a binary tree, determine if it is a valid binary search tree (BST). A valid BST is defined as follows: The left subtree of a node contains only nodes with keys less than the node's key. The right subtree of a node contains only nodes with keys greater than the node's key. Both the left and right subtrees must also be binary search trees.",
-                solution: "Use inorder traversal to check if the sequence is strictly increasing, or pass min/max bounds recursively.\n\n```javascript\nfunction isValidBST(root) {\n    const inorder = [];\n    function traverse(node) {\n        if (!node) return;\n        traverse(node.left);\n        inorder.push(node.val);\n        traverse(node.right);\n    }\n    traverse(root);\n    for (let i = 1; i < inorder.length; i++) {\n        if (inorder[i] <= inorder[i-1]) return false;\n    }\n    return true;\n}\n```"
+                solution: "Use recursive min/max bounds to ensure each node's value is within valid range.\n\n```javascript\nfunction isValidBST(root, min = -Infinity, max = Infinity) {\n    if (!root) return true;\n    if (root.val <= min || root.val >= max) return false;\n    return isValidBST(root.left, min, root.val) && isValidBST(root.right, root.val, max);\n}\n```"
             },
             {
                 problem: "Find the kth largest element in an unsorted array. Note that it is the kth largest element in the sorted order, not the kth distinct element.",
-                solution: "Use min-heap (priority queue) of size k, or quickselect. In JS, use array sort for simplicity, but O(n log n).\n\n```javascript\nfunction findKthLargest(nums, k) {\n    return nums.sort((a, b) => b - a)[k - 1];\n}\n```"
+                solution: "Use quickselect to find the kth largest in average O(n) time.\n\n```javascript\nfunction findKthLargest(nums, k) {\n    function quickSelect(arr, left, right, k) {\n        if (left === right) return arr[left];\n        let pivotIndex = partition(arr, left, right);\n        if (k === pivotIndex) return arr[k];\n        else if (k < pivotIndex) return quickSelect(arr, left, pivotIndex - 1, k);\n        else return quickSelect(arr, pivotIndex + 1, right, k);\n    }\n    function partition(arr, left, right) {\n        let pivot = arr[right], i = left;\n        for (let j = left; j < right; j++) {\n            if (arr[j] >= pivot) [arr[i], arr[j]] = [arr[j], arr[i]], i++;\n        }\n        [arr[i], arr[right]] = [arr[right], arr[i]];\n        return i;\n    }\n    return quickSelect(nums, 0, nums.length - 1, k - 1);\n}\n```"
             },
             {
                 problem: "Given an m x n grid of characters board and a string word, return true if word exists in the grid. The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.",
@@ -176,7 +180,7 @@
             },
             {
                 problem: "Sort an array of integers using the quicksort algorithm. Explain the partition step.",
-                solution: "Quicksort: Choose pivot, partition array so elements < pivot left, > right, recurse.\nPartition: Use two pointers, swap elements around pivot.\n\n```javascript\nfunction quicksort(arr) {\n    if (arr.length <= 1) return arr;\n    let pivot = arr[arr.length - 1];\n    let left = [], right = [];\n    for (let i = 0; i < arr.length - 1; i++) {\n        if (arr[i] < pivot) left.push(arr[i]);\n        else right.push(arr[i]);\n    }\n    return [...quicksort(left), pivot, ...quicksort(right)];\n}\n```"
+                solution: "Quicksort: Choose pivot, partition array in-place so elements <= pivot left, > right, recurse.\nPartition: Use two pointers, swap elements to place pivot in correct position.\n\n```javascript\nfunction quicksort(arr, left = 0, right = arr.length - 1) {\n    if (left < right) {\n        let pivotIndex = partition(arr, left, right);\n        quicksort(arr, left, pivotIndex - 1);\n        quicksort(arr, pivotIndex + 1, right);\n    }\n    return arr;\n    function partition(arr, left, right) {\n        let pivot = arr[right], i = left;\n        for (let j = left; j < right; j++) {\n            if (arr[j] <= pivot) [arr[i], arr[j]] = [arr[j], arr[i]], i++;\n        }\n        [arr[i], arr[right]] = [arr[right], arr[i]];\n        return i;\n    }\n}\n```"
             },
             {
                 problem: "Given the head of a sorted linked list, delete all duplicates such that each element appears only once. Return the linked list sorted as well.",
@@ -200,6 +204,20 @@
             }
         ];
 
+        let teasers = [];
+
+        async function fetchTeasers() {
+            try {
+                // TODO: Integrate api for dynamic fetch
+                const response = await fetch('https://msirvi.com/dsa-teaser');
+                if (!response.ok) throw new Error('Failed to fetch teasers');
+                return await response.json();
+            } catch (error) {
+                console.error('Failed to fetch teasers:', error);
+                return staticTeasers; // Fallback to static teasers
+            }
+        }
+
         const generateBtn = document.getElementById('generate');
         const problemDiv = document.getElementById('problem');
         const solutionDiv = document.getElementById('solution');
@@ -215,6 +233,14 @@
             }
             return solutionText;
         }
+
+        async function init() {
+            teasers = await fetchTeasers();
+            generateBtn.disabled = teasers.length === 0;
+            if (!generateBtn.disabled) generateBtn.textContent = 'Generate Random Teaser';
+        }
+
+        init();
 
         generateBtn.addEventListener('click', () => {
             const randomIndex = Math.floor(Math.random() * teasers.length);
